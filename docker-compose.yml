@@ -7,8 +7,10 @@ services:
       - 8081:8081
     depends_on:
       - redis
+      - jaeger
     networks:
       - mynet
+
   books:
     build: ./books
     container_name: books-service
@@ -18,6 +20,8 @@ services:
       - mynet
     depends_on:
       - redis
+      - jaeger
+
   frontend:
     build: ./frontend
     container_name: frontend-service
@@ -27,6 +31,7 @@ services:
       - mynet
     depends_on:
       - redis
+      - jaeger
 
   redis:
     image: redis:latest
@@ -35,7 +40,14 @@ services:
       - 6379:6379
     networks:
       - mynet
-      -
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.22.0
+    container_name: jaeger
+    ports:
+      - 16686:16686
+    networks:
+      - mynet
 
 networks:
   mynet:
