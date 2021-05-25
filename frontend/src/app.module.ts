@@ -10,6 +10,6 @@ import { JaegerMiddleware } from './jaeger.middleware';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JaegerMiddleware).forRoutes('api/v1/details');
+    consumer.apply(JaegerMiddleware).forRoutes('/');
   }
 }

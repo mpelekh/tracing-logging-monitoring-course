@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req } from '@nestjs/common';
 import { RedisClient } from 'redis';
 
 import { AuthorsService } from './authors.service';
 import { AuthorDto, CreateAuthorInput } from './authors.dto';
 import { REDIS_CONNECTION, REDIS_TOPIC } from '../redis/redis.providers';
+import { JAEGER_CLIENT } from '../jaeger/jaeger.provider';
 
 @Controller('api/v1/authors')
 export class AuthorsController {
@@ -11,12 +12,22 @@ export class AuthorsController {
     private readonly authorsService: AuthorsService,
     @Inject(REDIS_CONNECTION)
     private readonly redisInstance: RedisClient,
+    @Inject(JAEGER_CLIENT)
+    private readonly tracer,
   ) {}
 
   @Get('/')
-  getAuthors(): AuthorDto[] {
+  getAuthors(@Req() req): AuthorDto[] {
     console.log('Get authors');
-    return this.authorsService.getAuthors();
+    const span = this.tracer.startSpan('get authors', {
+      childOf: req.span,
+    });
+
+    const authors = this.authorsService.getAuthors();
+
+    span.finish();
+
+    return authors;
   }
 
   @Get('/:id')
