@@ -25,13 +25,16 @@ export class BooksController {
   ) {}
 
   @Get('/')
-  getBooks(@Req() req): BookDto[] {
+  async getBooks(@Req() req): Promise<BookDto[]> {
     console.log('Get books');
     const span = this.tracer.startSpan('get books', {
       childOf: req.span,
     });
 
     const books = this.booksService.getBooks();
+
+    // Add intentional delay
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     span.finish();
 
