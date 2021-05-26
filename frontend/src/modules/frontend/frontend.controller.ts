@@ -41,10 +41,15 @@ export class FrontendController {
     // show how to set a baggage item for context propagation (be careful is expensive)
     span.setBaggageItem('my-baggage', 'my-baggage');
 
-    const { data: books }: ApiResponse<BookDto[]> = await this.booksApi.get(
-      '/',
-      { headers },
-    );
+    let books: any = [];
+    try {
+      books = await this.booksApi.get('/', {
+        headers,
+      });
+      console.log(books);
+    } catch {
+      span.setTag('get books error', true);
+    }
 
     span.finish();
 

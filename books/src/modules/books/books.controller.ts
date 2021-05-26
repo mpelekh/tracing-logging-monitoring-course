@@ -36,6 +36,10 @@ export class BooksController {
     // Add intentional delay
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
+    // span.setTag('intentional error', true);
+    // span.finish();
+    // throw new Error('Boom');
+
     span.finish();
 
     return books;
