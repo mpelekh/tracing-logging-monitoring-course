@@ -43,10 +43,11 @@ export class FrontendController {
 
     let books: any = [];
     try {
-      books = await this.booksApi.get('/', {
+      const { data } = await this.booksApi.get('/', {
         headers,
       });
-      console.log(books);
+
+      books = data;
     } catch {
       span.setTag('get books error', true);
     }

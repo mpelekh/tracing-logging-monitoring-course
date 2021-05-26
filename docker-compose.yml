@@ -3,6 +3,9 @@ services:
   authors:
     build: ./authors
     container_name: authors-service
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6832
     ports:
       - 8081:8081
     depends_on:
@@ -14,6 +17,9 @@ services:
   books:
     build: ./books
     container_name: books-service
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6832
     ports:
       - 8082:8082
     networks:
@@ -25,6 +31,9 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend-service
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6832
     ports:
       - 8083:8083
     networks:
@@ -46,6 +55,7 @@ services:
     container_name: jaeger
     ports:
       - 16686:16686
+      - 6832:6832/udp
     networks:
       - mynet
 

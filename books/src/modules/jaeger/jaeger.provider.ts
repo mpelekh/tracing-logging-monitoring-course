@@ -1,4 +1,4 @@
-import { initTracer } from 'jaeger-client';
+import { initTracerFromEnv } from 'jaeger-client';
 import * as opentracing from 'opentracing';
 
 export const JAEGER_CLIENT = 'JAEGER_CLIENT';
@@ -21,7 +21,7 @@ export const jaegerProvider = {
       },
       logger: console,
     };
-    const tracer = initTracer(config, options);
+    const tracer = initTracerFromEnv(config, options);
 
     opentracing.initGlobalTracer(tracer);
 
