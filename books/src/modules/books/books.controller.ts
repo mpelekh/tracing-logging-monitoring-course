@@ -1,4 +1,5 @@
 import {
+  Logger,
   Body,
   Controller,
   Get,
@@ -17,15 +18,24 @@ import { JAEGER_CLIENT } from '../jaeger/jaeger.provider';
 @Controller('api/v1/books')
 export class BooksController {
   constructor(
+    private readonly logger: Logger,
     private readonly booksService: BooksService,
     @Inject(REDIS_CONNECTION)
     private readonly redisInstance: RedisClient,
     @Inject(JAEGER_CLIENT)
     private readonly tracer,
-  ) {}
+  ) {
+    this.logger.setContext(BooksController.name);
+  }
 
   @Get('/')
   async getBooks(@Req() req): Promise<BookDto[]> {
+    this.logger.log({
+      level: 'info',
+      message: 'Get books',
+      spanId: req.span.context().toSpanId(),
+      traceId: req.span.context().toTraceId(),
+    });
     console.log('Get books');
     const span = this.tracer.startSpan('get books', {
       childOf: req.span,

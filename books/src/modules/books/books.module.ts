@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 
 import { ApiModule } from '../api/api.module';
 import { RedisModule } from '../redis/redis.module';
@@ -9,6 +9,6 @@ import { BooksService } from './books.service';
 @Module({
   imports: [ApiModule, RedisModule, JaegerModule],
   controllers: [BooksController],
-  providers: [BooksService],
+  providers: [BooksService, Logger],
 })
 export class BooksModule {}

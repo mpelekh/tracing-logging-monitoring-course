@@ -22,6 +22,8 @@ services:
     environment:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
+    volumes:
+      - ${PWD}/books/books-service.log:/var/www/node/books-service.log
     ports:
       - 8082:8082
     networks:
@@ -36,6 +38,8 @@ services:
     environment:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
+    volumes:
+      - ${PWD}/frontend/frontend-service.log:/var/www/node/frontend-service.log
     ports:
       - 8083:8083
     networks:
@@ -86,6 +90,8 @@ services:
     volumes:
       - ${PWD}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ${PWD}/authors/authors-service.log:/var/log/authors-service.log
+      - ${PWD}/books/books-service.log:/var/log/books-service.log
+      - ${PWD}/frontend/frontend-service.log:/var/log/frontend-service.log
     networks:
       - mynet
 
