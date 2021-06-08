@@ -9,6 +9,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { RedisClient } from 'redis';
+import { CounterMetric, PromCounter } from '@digikare/nestjs-prom';
 
 import { AuthorsService } from './authors.service';
 import { AuthorDto, CreateAuthorInput } from './authors.dto';
@@ -29,7 +30,15 @@ export class AuthorsController {
   }
 
   @Get('/')
-  getAuthors(@Req() req): AuthorDto[] {
+  getAuthors(
+    @Req() req,
+    @PromCounter({
+      name: 'request_counter',
+      help: 'request_counter_help',
+      labelNames: ['ControllerName', 'ServiceName', 'Url'],
+    })
+    requestCounter: CounterMetric,
+  ): AuthorDto[] {
     this.logger.log({
       level: 'info',
       message: 'Get authors',
@@ -37,6 +46,14 @@ export class AuthorsController {
       traceId: req.span.context().toTraceId(),
     });
     console.log('Get authors');
+    requestCounter.inc(
+      {
+        ControllerName: 'AuthorsController',
+        ServiceName: 'authors',
+        Url: '/',
+      },
+      1,
+    );
     const span = this.tracer.startSpan('get authors', {
       childOf: req.span,
     });
@@ -49,7 +66,23 @@ export class AuthorsController {
   }
 
   @Get('/:id')
-  getAuthorById(@Param('id') id: string): AuthorDto {
+  getAuthorById(
+    @PromCounter({
+      name: 'request_counter',
+      help: 'request_counter_help',
+      labelNames: ['ControllerName', 'ServiceName', 'Url'],
+    })
+    requestCounter: CounterMetric,
+    @Param('id') id: string,
+  ): AuthorDto {
+    requestCounter.inc(
+      {
+        ControllerName: 'AuthorsController',
+        ServiceName: 'authors',
+        Url: '/:id',
+      },
+      1,
+    );
     console.log('Get author by ID');
     return this.authorsService.findById(id);
   }
