@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Inject, Param, Post, Req } from '@nestjs/common';
+import {
+  Logger,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { RedisClient } from 'redis';
 
 import { AuthorsService } from './authors.service';
@@ -9,15 +18,24 @@ import { JAEGER_CLIENT } from '../jaeger/jaeger.provider';
 @Controller('api/v1/authors')
 export class AuthorsController {
   constructor(
+    private readonly logger: Logger,
     private readonly authorsService: AuthorsService,
     @Inject(REDIS_CONNECTION)
     private readonly redisInstance: RedisClient,
     @Inject(JAEGER_CLIENT)
     private readonly tracer,
-  ) {}
+  ) {
+    this.logger.setContext(AuthorsController.name);
+  }
 
   @Get('/')
   getAuthors(@Req() req): AuthorDto[] {
+    this.logger.log({
+      level: 'info',
+      message: 'Get authors',
+      spanId: req.span.context().toSpanId(),
+      traceId: req.span.context().toTraceId(),
+    });
     console.log('Get authors');
     const span = this.tracer.startSpan('get authors', {
       childOf: req.span,

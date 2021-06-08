@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { RedisModule } from '../redis/redis.module';
 import { JaegerModule } from '../jaeger/jaeger.module';
 
@@ -8,6 +8,6 @@ import { AuthorsService } from './authors.service';
 @Module({
   imports: [RedisModule, JaegerModule],
   controllers: [AuthorsController],
-  providers: [AuthorsService],
+  providers: [AuthorsService, Logger],
 })
 export class AuthorsModule {}

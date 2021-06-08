@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Req } from '@nestjs/common';
+import { Logger, Controller, Get, Inject, Req } from '@nestjs/common';
 import * as opentracing from 'opentracing';
 
 import { ApiClient, ApiResponse } from '../api/api.interface';
@@ -12,16 +12,24 @@ export class FrontendController {
   private readonly booksApi: ApiClient;
 
   constructor(
+    private readonly logger: Logger,
     @Inject(JAEGER_CLIENT)
     private readonly tracer,
     apiService: ApiService,
   ) {
     this.authorsApi = apiService.getAuthorsApi();
     this.booksApi = apiService.getBooksApi();
+    this.logger.setContext(FrontendController.name);
   }
 
   @Get('/')
   async getBooksAndAuthors(@Req() req): Promise<BooksAndAuthorsDto> {
+    this.logger.log({
+      level: 'info',
+      message: 'Get books and authors',
+      spanId: req.span.context().toSpanId(),
+      traceId: req.span.context().toTraceId(),
+    });
     const span = this.tracer.startSpan('get books and authors', {
       childOf: req.span,
     });

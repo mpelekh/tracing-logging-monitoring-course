@@ -6,6 +6,8 @@ services:
     environment:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
+    volumes:
+      - ${PWD}/authors/authors-service.log:/var/www/node/authors-service.log
     ports:
       - 8081:8081
     depends_on:
@@ -20,6 +22,8 @@ services:
     environment:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
+    volumes:
+      - ${PWD}/books/books-service.log:/var/www/node/books-service.log
     ports:
       - 8082:8082
     networks:
@@ -34,6 +38,8 @@ services:
     environment:
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
+    volumes:
+      - ${PWD}/frontend/frontend-service.log:/var/www/node/frontend-service.log
     ports:
       - 8083:8083
     networks:
@@ -59,5 +65,38 @@ services:
     networks:
       - mynet
 
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.2.0"
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - mynet
+
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:7.2.0"
+    ports:
+      - "5601:5601"
+    networks:
+      - mynet
+
+  filebeat:
+    image: "docker.elastic.co/beats/filebeat:7.2.0"
+    user: root
+    volumes:
+      - ${PWD}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ${PWD}/authors/authors-service.log:/var/log/authors-service.log
+      - ${PWD}/books/books-service.log:/var/log/books-service.log
+      - ${PWD}/frontend/frontend-service.log:/var/log/frontend-service.log
+    networks:
+      - mynet
+
 networks:
   mynet:
+
+volumes:
+  elasticsearch_data:
